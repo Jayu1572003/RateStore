@@ -1,254 +1,294 @@
-# Store Ratings & Review System
+# ⭐ Store Ratings & Review System
 
-A premium, full-stack Store Rating and Review web application built with a modern, high-performance tech stack. The system supports multi-role access (Admin, Store Owner, and Normal User) with secure JWT-based authentication, real-time statistical dashboards, store management, and rating controls.
+A full-stack web application that enables users to browse stores, submit ratings, and manage reviews through secure role-based access control. Built with NestJS, React, PostgreSQL, and JWT authentication.
+
+## 🚀 Features
+
+### 👨‍💼 Admin
+
+* Manage users and stores
+* Assign store owners
+* View system statistics
+* Monitor ratings and reviews
+
+### 🏪 Store Owner
+
+* View owned stores
+* Track average ratings
+* Monitor customer feedback
+* Access store-specific analytics
+
+### 👤 Normal User
+
+* Browse and search stores
+* Submit ratings (1–5 stars)
+* Update existing ratings
+* View store reviews and ratings
 
 ---
 
-## 🚀 Technology Stack
+## 🛠️ Tech Stack
 
 ### Backend
-* **Framework:** [NestJS](https://nestjs.com/) (Node.js framework)
-* **Language:** TypeScript
-* **Database ORM:** [TypeORM](https://typeorm.io/)
-* **Database:** PostgreSQL
-* **Authentication:** Passport.js with JWT Strategy
-* **Security:** Bcrypt (password hashing)
-* **Validation:** Class-validator & Class-transformer
+
+* NestJS
+* TypeScript
+* PostgreSQL
+* TypeORM
+* Passport JWT
+* Bcrypt
+* Class Validator
 
 ### Frontend
-* **Library:** [React 19](https://react.dev/)
-* **Build Tool:** [Vite](https://vite.dev/)
-* **Styling:** [Tailwind CSS v4](https://tailwindcss.com/)
-* **Routing:** [React Router v7](https://reactrouter.com/)
-* **Data Fetching & State:** [TanStack React Query v5](https://tanstack.com/query/latest)
-* **HTTP Client:** Axios (with request/response interceptors for automatic JWT authorization and session expiration)
-* **Form Management:** React Hook Form
-* **Schema Validation:** Zod
+
+* React 19
+* Vite
+* Tailwind CSS v4
+* React Router v7
+* TanStack Query v5
+* Axios
+* React Hook Form
+* Zod
 
 ---
 
-## 👥 Role-Based Features
+## 📂 Project Structure
 
-The application operates on three distinct user roles, each with a tailored workspace and set of capabilities:
-
-| Role | Permissions & Features | Screen / View |
-| :--- | :--- | :--- |
-| **System Administrator** | • View system-wide stats (total stores, total users, total reviews)<br>• Manage users (list, search, filter, register new users, view details)<br>• Manage stores (add new stores, edit store info, assign owners, delete stores) | Admin Dashboard, User Management, Store Management |
-| **Store Owner** | • View store-specific dashboard stats (average rating, review counts)<br>• View a list of stores owned by them<br>• View detailed feedback & reviews for their stores | Store Owner Dashboard, Store Detailed Reviews |
-| **Normal User** | • Browse the list of all stores and search/filter them<br>• View overall ratings for stores<br>• Rate stores (1 to 5 stars) or update their existing rating | User Store Directory, Rate Store Dialog |
-
----
-
-## 📂 Repository Structure
-
-The project is structured as a monorepo containing separate frontend and backend workspaces:
-
-```
-FullStack Task/
-├── backend/                  # NestJS API Backend
+```text
+Store-Ratings-System/
+│
+├── backend/
 │   ├── src/
-│   │   ├── admin/            # Admin metrics & statistics module
-│   │   ├── auth/             # Passport/JWT login, register & session guards
-│   │   ├── common/           # Interceptors, filters, and utilities
-│   │   ├── database/         # Database datasource config & seed scripts
-│   │   ├── migrations/       # TypeORM migration history
-│   │   ├── ratings/          # Rating CRUD and validation module
-│   │   ├── stores/           # Store CRUD and owner association module
-│   │   └── users/            # User account management module
-│   ├── test/                 # Integration and unit tests
+│   │   ├── auth/
+│   │   ├── users/
+│   │   ├── stores/
+│   │   ├── ratings/
+│   │   ├── admin/
+│   │   └── database/
 │   └── package.json
 │
-└── frontend/                 # React Single Page Application (SPA)
-    ├── src/
-    │   ├── assets/           # Static logo & visual assets
-    │   ├── components/       # Reusable components (Navbar, ProtectedRoute, etc.)
-    │   ├── contexts/         # React Contexts (AuthContext, ToastContext)
-    │   ├── lib/              # API Client configured with Axios
-    │   ├── pages/            # Page templates (Login, Register, Owner/Admin Dashboards)
-    │   └── App.tsx           # Router configuration and app core
-    └── package.json
+├── frontend/
+│   ├── src/
+│   │   ├── components/
+│   │   ├── pages/
+│   │   ├── contexts/
+│   │   ├── lib/
+│   │   └── assets/
+│   └── package.json
+│
+└── README.md
 ```
 
 ---
 
-## 🗄️ Database Schema & Entities
+## 🗄️ Database Schema
 
-The application uses **PostgreSQL** with three core entities configured via TypeORM:
+### User
 
-### 1. User Entity (`users`)
-Represents system accounts (Admin, Store Owner, or Normal User).
-* `id`: UUID (Primary Key)
-* `name`: Varchar (60)
-* `email`: Varchar (255, Unique)
-* `password`: Varchar (255, Hashed)
-* `address`: Text
-* `role`: Enum (`admin`, `store_owner`, `normal_user`)
-* `created_at`: Timestamp
-* `updated_at`: Timestamp
+* id (UUID)
+* name
+* email
+* password
+* address
+* role (Admin, Store Owner, User)
 
-### 2. Store Entity (`stores`)
-Represents shops/stores added to the directory.
-* `id`: UUID (Primary Key)
-* `name`: Varchar (60)
-* `email`: Varchar (255, Unique)
-* `address`: Text
-* `owner_id`: UUID (Foreign Key pointing to `users`, nullable, deletes set to `SET NULL`)
-* `created_at`: Timestamp
-* `updated_at`: Timestamp
+### Store
 
-### 3. Rating Entity (`ratings`)
-Represents store reviews/ratings left by Normal Users.
-* `id`: UUID (Primary Key)
-* `user_id`: UUID (Foreign Key pointing to `users`, cascades on delete)
-* `store_id`: UUID (Foreign Key pointing to `stores`, cascades on delete)
-* `value`: SmallInt (1 to 5)
-* `created_at`: Timestamp
-* `updated_at`: Timestamp
-* **Constraint:** A unique composite index `["user_id", "store_id"]` ensures a user can only rate a single store once.
+* id (UUID)
+* name
+* email
+* address
+* ownerId
+
+### Rating
+
+* id (UUID)
+* userId
+* storeId
+* value (1–5)
+
+**Constraint:** A user can rate a store only once.
 
 ---
 
-## 🔌 API Endpoints Documentation
+## 🔐 Authentication & Security
 
-All backend API routes are prefixed with `/api`. Most endpoints are protected and require a `Bearer <JWT_TOKEN>` header.
-
-### Authentication (`/api/auth`)
-* `POST /api/auth/register` - Register a new User.
-* `POST /api/auth/login` - Authenticate using email and password. Returns JWT token.
-* `POST /api/auth/logout` - Clear user session.
-* `GET /api/auth/profile` - Fetch the profile details of the logged-in user.
-
-### Users Management (`/api/users`)
-* `POST /api/users` - Create a new user account *(Admin Only)*.
-* `GET /api/users` - Fetch users list with filter support *(Admin Only)*.
-* `GET /api/users/:id` - Fetch detailed details of a user *(Admin Only)*.
-* `PATCH /api/users/me/password` - Change the current user's password *(Authenticated)*.
-
-### Stores Management (`/api/stores`)
-* `GET /api/stores` - Get list of all stores. If logged-in as a `NORMAL_USER`, it includes the user's specific rating details for each store *(Authenticated)*.
-* `GET /api/stores/owner/dashboard` - Get dashboard statistics for the logged-in owner's stores *(Store Owner Only)*.
-* `GET /api/stores/:id` - Get details of a single store *(Authenticated)*.
-* `POST /api/stores` - Create a new store *(Admin Only)*.
-
-### Ratings (`/api/ratings`)
-* `POST /api/ratings` - Submit a new store rating (1-5) *(Normal User Only)*.
-* `PATCH /api/ratings/:storeId` - Update an existing store rating *(Normal User Only)*.
-* `GET /api/ratings/stats` - Get system-wide rating count stats *(Admin Only)*.
-
-### Admin Tools (`/api/admin`)
-* `GET /api/admin/dashboard` - Fetch total counts of stores, users, and ratings *(Admin Only)*.
+* JWT Authentication
+* Role-Based Access Control (RBAC)
+* Password Hashing with Bcrypt
+* Protected API Routes
+* Request Validation using Class Validator
 
 ---
 
-## 🛠️ Installation & Setup
+## 📡 API Modules
 
-### Prerequisites
-* **Node.js** (v18 or higher recommended)
-* **npm** (v9 or higher)
-* **PostgreSQL** instance running locally or on a cloud platform
+### Authentication
 
----
+```http
+POST /api/auth/register
+POST /api/auth/login
+POST /api/auth/logout
+GET  /api/auth/profile
+```
 
-### Step 1: Backend Setup
+### Users
 
-1. Open your terminal and navigate to the backend directory:
-   ```bash
-   cd backend
-   ```
+```http
+POST  /api/users
+GET   /api/users
+GET   /api/users/:id
+PATCH /api/users/me/password
+```
 
-2. Install dependencies:
-   ```bash
-   npm install
-   ```
+### Stores
 
-3. Configure Environment Variables:
-   Create a `.env` file in the root of the `/backend` folder based on `.env.example`:
-   ```env
-   DB_HOST=localhost
-   DB_PORT=5432
-   DB_USER=postgres
-   DB_PASS=your_postgres_password
-   DB_NAME=store_ratings
-   JWT_SECRET=your_jwt_secret_min_32_chars_long_and_secure
-   FRONTEND_URL=http://localhost:5173
-   PORT=3000
-   ```
+```http
+GET  /api/stores
+GET  /api/stores/:id
+POST /api/stores
+GET  /api/stores/owner/dashboard
+```
 
-4. Create the Database:
-   Create a database named `store_ratings` in your PostgreSQL server (e.g., using pgAdmin or terminal `psql`).
+### Ratings
 
-5. Run Database Migrations:
-   Compile the code and execute migrations to create tables:
-   ```bash
-   npm run migration:run
-   ```
+```http
+POST  /api/ratings
+PATCH /api/ratings/:storeId
+GET   /api/ratings/stats
+```
 
-6. Seed Database:
-   Generate the default Administrator account:
-   ```bash
-   npm run seed
-   ```
-   *Note: This creates the default Admin account:*
-   * **Email:** `admin@example.com`
-   * **Password:** `Admin@123`
+### Admin
 
-7. Start the Development Server:
-   ```bash
-   npm run start:dev
-   ```
-   The backend API will start on `http://localhost:3000`.
+```http
+GET /api/admin/dashboard
+```
 
 ---
 
-### Step 2: Frontend Setup
+## ⚙️ Installation
 
-1. Open a new terminal window/tab and navigate to the frontend directory:
-   ```bash
-   cd frontend
-   ```
+### Clone Repository
 
-2. Install dependencies:
-   ```bash
-   npm install
-   ```
+```bash
+git clone https://github.com/your-username/store-ratings-system.git
+cd store-ratings-system
+```
 
-3. Configure Environment Variables:
-   Create a `.env` file in the root of the `/frontend` folder:
-   ```env
-   VITE_API_URL=http://localhost:3000/api
-   ```
+### Backend Setup
 
-4. Start the Frontend Dev Server:
-   ```bash
-   npm run dev
-   ```
-   The frontend UI will be running on `http://localhost:5173` (or the next available port displayed in the console).
+```bash
+cd backend
+npm install
+```
+
+Create `.env`
+
+```env
+DB_HOST=localhost
+DB_PORT=5432
+DB_USER=postgres
+DB_PASS=your_password
+DB_NAME=store_ratings
+
+JWT_SECRET=your_secret_key
+FRONTEND_URL=http://localhost:5173
+PORT=3000
+```
+
+Run migrations and seed data:
+
+```bash
+npm run migration:run
+npm run seed
+npm run start:dev
+```
+
+Backend runs at:
+
+```text
+http://localhost:3000
+```
+
+### Frontend Setup
+
+```bash
+cd frontend
+npm install
+```
+
+Create `.env`
+
+```env
+VITE_API_URL=http://localhost:3000/api
+```
+
+Start frontend:
+
+```bash
+npm run dev
+```
+
+Frontend runs at:
+
+```text
+http://localhost:5173
+```
 
 ---
 
-## 🔐 Default Admin Account
-To log in immediately after setup:
-* **URL:** `http://localhost:5173/login`
-* **Email:** `admin@example.com`
-* **Password:** `Admin@123`
-From the Admin Dashboard, you can register new store owners and normal users, or create and assign stores.
+## 🔑 Default Admin Account
+
+```text
+Email    : admin@example.com
+Password : Admin@123
+```
 
 ---
 
-## 📁 Development Scripts
+## 📜 Available Scripts
 
-### Backend (`/backend`)
-* `npm run start:dev` - Starts the API server with live watch mode.
-* `npm run build` - Compiles the TypeScript code to `/dist`.
-* `npm run migration:run` - Runs pending database migrations.
-* `npm run migration:revert` - Reverts the last migration.
-* `npm run seed` - Seeds the database with default administrator credentials.
-* `npm run test` - Runs unit tests.
+### Backend
 
-### Frontend (`/frontend`)
-* `npm run dev` - Starts the Vite development server with Hot Module Replacement (HMR).
-* `npm run build` - Compiles React components and TypeScript files into an optimized production build.
-* `npm run preview` - Runs a local web server to preview the production build.
-* `npm run lint` - Runs ESLint to find and fix styling or code-quality issues.
-#   R a t e S t o r e  
- 
+```bash
+npm run start:dev
+npm run build
+npm run migration:run
+npm run migration:revert
+npm run seed
+npm run test
+```
+
+### Frontend
+
+```bash
+npm run dev
+npm run build
+npm run preview
+npm run lint
+```
+
+---
+
+## 🎯 Key Highlights
+
+* Full-Stack Monorepo Architecture
+* Role-Based Access Control (RBAC)
+* Secure JWT Authentication
+* PostgreSQL Database
+* Store Rating Management
+* Real-Time Dashboard Analytics
+* Responsive UI with Tailwind CSS
+* Production-Ready Code Structure
+
+---
+
+## 👨‍💻 Author
+
+**Jayesh Ghevare**
+
+🌐 Portfolio: https://jayesh-ghevare.vercel.app
+
+💼 LinkedIn: https://linkedin.com/in/jayesh-ghevare
+
+🐙 GitHub: https://github.com/jayeshghevare
